@@ -1,0 +1,38 @@
+/* Existing styles for other sections */
+
+/* Add these new styles for the Model section */
+.model-section {
+    transition: all 0.3s ease;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.model-section:hover {
+    background-color: #e0e0e0;
+}
+
+.model-section h2, .model-section h3 {
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.model-section h2:hover, .model-section h3:hover {
+    color: #0056b3;
+}
+
+.model-section p, .model-section ul {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Smooth transition for buttons if present in the Model section */
+.model-section button {
+    transition: background-color 0.3s ease;
+}
+
+.model-section button:hover {
+    background-color: #0056b3;
+    color: white;
+}
