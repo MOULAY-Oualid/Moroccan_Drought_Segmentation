@@ -1,8 +1,14 @@
 import streamlit as st
 from PIL import Image
 from datetime import date
-import os
 import base64
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+import io
+from googleapiclient.http import MediaIoBaseDownload
+from google.oauth2 import service_account
+
 
 # Set page config
 st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
@@ -20,12 +26,12 @@ st.markdown('<div class="title"><h1>Moroccan Drought Segmentation</h1></div>', u
 st.markdown('<div class="content-section"><p>This project uses deep learning models to predict future drought conditions in Morocco.</p></div>', unsafe_allow_html=True)
 
 # Manage session state
-for key in ['EDA','prediction_date', 'prediction_button_pressed', 'selected_section', 'minimize_base_map']:
+for key in ['prediction_date', 'prediction_button_pressed', 'selected_section']:
     if key not in st.session_state:
-        st.session_state[key] = None if key == 'prediction_date' else False if key in ['prediction_button_pressed', 'minimize_base_map'] else "Prediction"
+        st.session_state[key] = None if key == 'prediction_date' else False if key == 'prediction_button_pressed' else "Prediction"
 
 # Use tabs for navigation
-tabs = st.tabs(["Prediction", "Model Metrics and History", "Data", "About Us"])
+tabs = st.tabs(["Exploratory Data Analysis", "Prediction", "Model Metrics and History", "Data", "About Us"])
 
 def is_valid_date(selected_date):
     # Check if the day is 1, 11, or 21
@@ -39,7 +45,77 @@ def img_to_base64(image_path):
         st.error(f"Image not found: {image_path}")
         return None
 
+
+SERVICE_ACCOUNT_FILE = 'moroccan-drought-data-a7ae9a88cfde.json'  # Update with your actual file path
+
+# Authenticate using the service account
+def authenticate_google_drive():
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE,
+        scopes=['https://www.googleapis.com/auth/drive.readonly']
+    )
+    service = build('drive', 'v3', credentials=creds)
+    return service
+
+# List files in Google Drive folder
+def list_files_in_drive(service, folder_id):
+    query = f"'{folder_id}' in parents"
+    results = service.files().list(q=query, fields="files(id, name)").execute()
+    files = results.get('files', [])
+    return files
+
+# Folder ID from Google Drive (replace with your actual folder ID)
+folder_id = '1j5s1OnQI-b_Cc2NOYi6gEDydmGFBfH1q'
+
+# Authenticate and get the service
+service = authenticate_google_drive()
+
+# List files in the folder
+files = list_files_in_drive(service, folder_id)
+
+# Function to fetch image from Google Drive and return as PIL Image
+def fetch_image_from_drive(service, file_id):
+    request = service.files().get_media(fileId=file_id)
+    fh = io.BytesIO()  # Use BytesIO to store image data in memory
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while not done:
+        status, done = downloader.next_chunk()
+    fh.seek(0)  # Go to the start of the file
+    image = Image.open(fh)  # Open the image from memory
+    return image
+
+# Define the function to check if the date is valid
+def is_valid_date(selected_date):
+    return selected_date.day in [1, 11, 21]
+
+
+
+
 with tabs[0]:
+    st.write("This section provides an overview of the data used in the project, including descriptive statistics and visualizations.")
+
+    # Example descriptive statistics
+    st.subheader("Descriptive Statistics")
+    st.write("- Number of samples: 1000")
+    st.write("- Average Drought Severity Index: 0.45")
+    st.write("- Standard Deviation of Drought Severity Index: 0.12")
+
+    # Example visualizations
+    st.subheader("Visualizations")
+    try:
+        drought_histogram = Image.open("assets/drought_histogram.png")
+        st.image(drought_histogram, caption="Drought Severity Index Distribution", use_container_width=True)
+    except FileNotFoundError:
+        st.error("Drought histogram image not found.")
+
+    try:
+        drought_map = Image.open("assets/drought_map.png")
+        st.image(drought_map, caption="Geographical Distribution of Droughts", use_container_width=True)
+    except FileNotFoundError:
+        st.error("Drought map image not found.")
+
+with tabs[1]:
     c1, c2 = st.columns([1, 1])
     with c1:
         st.session_state.prediction_date = st.date_input("Select Date for Prediction", value=st.session_state.get('prediction_date', None), key="prediction_date_input")
@@ -67,7 +143,7 @@ with tabs[0]:
         except FileNotFoundError:
             st.error("Predicted image not found. Please ensure the prediction was successful.")
             
-with tabs[1]:
+with tabs[2]:
     # Example metrics - these should be actual metrics from your model training
     st.subheader("Model Performance Metrics")
     st.write("**Accuracy:** 92%")
@@ -91,10 +167,11 @@ with tabs[1]:
     st.write("Here you could add more detailed information or visualizations like:")
     st.write("- Confusion Matrix")
     st.write("- ROC Curve")
-    st.write("- Learning Rate Schedule")
+    st.write("- Learning Rate Schedule")    
+    
 
-
-with tabs[2]:
+# Display the image based on selected date
+with tabs[3]:
     st.write("This section provides information about the data used in this project.")
 
     col1, col2 = st.columns([1, 1])
@@ -106,21 +183,26 @@ with tabs[2]:
             value=date(2012, 1, 1),
             key="date_selector"
         )
-    
+
     # Validate the selected date
     if is_valid_date(selected_date):
         formatted_date = selected_date.strftime('%Y-%m-%d')
-        image_path = os.path.join('./Data/', f"{formatted_date}.png")
-        
-        if os.path.exists(image_path):
-            st.image(image_path, caption=f"Image for {formatted_date}", use_container_width=True)
+
+        # Search for the image by date
+        image_name = f"{formatted_date}.png"
+        image_file = next((file for file in files if file['name'] == image_name), None)
+
+        if image_file:
+            # Fetch the image from Google Drive without downloading to disk
+            file_id = image_file['id']
+            image = fetch_image_from_drive(service, file_id)
+            st.image(image, caption=f"Image for {formatted_date}", use_container_width=True)
         else:
             st.write(f"No image available for {formatted_date}. Please choose another date.")
     else:
         st.write("Please select a valid date (1st, 11th, or 21st of any month).")
-    
 
-with tabs[3]:
+with tabs[4]:
     # Convert images to Base64
     images = {
         "oualid": img_to_base64("assets/oualid.png"),
