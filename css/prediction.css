@@ -1,43 +1,48 @@
 /* Style for the top bar */
+body {
+    scroll-behavior: smooth;
+}
+/* .MainMenu {visibility: hidden;} */
+footer {visibility: hidden;}
+/* header {visibility: hidden;} */
+
+[data-testid="stMainBlockContainer"] {
+    padding-top: 0;
+}
+
+[data-baseweb="tab-list"] {
+    display: flex;
+    justify-content: space-between;
+}
+
+.st-emotion-cache-89jlt8{
+    font-size: 20px;
+    font-weight: bold;
+}
+
 .title {
     background-color: #696969;
     color: white;
     padding: 10px 20px;
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 1000;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     font-size: 20px;
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: -1%;
 }
 
 /* Content section styling */
 .content-section {
-    margin-top: 60px; /* Adjust for the sticky top bar */
+    margin-top: 10px; /* Adjust based on the height of the sticky title bar */
     padding: 20px;
-}
-
-.top-bar button {
-    background: none;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    border-radius: 5px;
-}
-
-.top-bar button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #f0f0f0;
-}
-
-.top-bar button:active {
-    background-color: rgba(255, 255, 255, 0.3);
+    display: flex;
+    justify-content: center;
+    font-style: italic;
 }
 
 .st-emotion-cache-ocqkz7 {
@@ -65,7 +70,7 @@
     border: 5px solid #ddd;
     border-radius: 10px;
     height: 600px;
-    width: 1000px;
+    width: 100%;
 }
 
 /* Styling for the base map title */
