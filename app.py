@@ -20,7 +20,7 @@ st.markdown('<div class="title"><h1>Moroccan Drought Segmentation</h1></div>', u
 st.markdown('<div class="content-section"><p>This project uses deep learning models to predict future drought conditions in Morocco.</p></div>', unsafe_allow_html=True)
 
 # Manage session state
-for key in ['prediction_date', 'prediction_button_pressed', 'selected_section', 'minimize_base_map']:
+for key in ['EDA','prediction_date', 'prediction_button_pressed', 'selected_section', 'minimize_base_map']:
     if key not in st.session_state:
         st.session_state[key] = None if key == 'prediction_date' else False if key in ['prediction_button_pressed', 'minimize_base_map'] else "Prediction"
 
