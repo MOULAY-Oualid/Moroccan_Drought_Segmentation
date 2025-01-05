@@ -2,9 +2,9 @@
 body {
     scroll-behavior: smooth;
 }
-/* .MainMenu {visibility: hidden;} */
+.MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
-/* header {visibility: hidden;} */
+header {visibility: hidden;}
 
 [data-testid="stMainBlockContainer"] {
     padding-top: 0;
@@ -33,7 +33,7 @@ footer {visibility: hidden;}
     font-size: 20px;
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: -1%;
+    margin-top: -4%;
 }
 
 /* Content section styling */
@@ -69,8 +69,8 @@ footer {visibility: hidden;}
 .stImage img {
     border: 5px solid #ddd;
     border-radius: 10px;
-    height: 600px;
-    width: 100%;
+    max-width: 400px;
+    max-height: 400px;
 }
 
 /* Styling for the base map title */

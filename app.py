@@ -46,7 +46,8 @@ def img_to_base64(image_path):
         return None
 
 
-SERVICE_ACCOUNT_FILE = 'moroccan-drought-data-a7ae9a88cfde.json'  # Update with your actual file path
+# Service Account File
+SERVICE_ACCOUNT_FILE = 'vivid-osprey-446918-a1-84344af7678c.json'
 
 # Authenticate using the service account
 def authenticate_google_drive():
@@ -57,11 +58,26 @@ def authenticate_google_drive():
     service = build('drive', 'v3', credentials=creds)
     return service
 
-# List files in Google Drive folder
-def list_files_in_drive(service, folder_id):
-    query = f"'{folder_id}' in parents"
-    results = service.files().list(q=query, fields="files(id, name)").execute()
-    files = results.get('files', [])
+# List all files in Google Drive folder (with pagination)
+def list_all_files_in_drive(service, folder_id):
+    files = []
+    page_token = None
+    while True:
+        # Retrieve files in the folder with pagination
+        results = service.files().list(
+            q=f"'{folder_id}' in parents",
+            fields="nextPageToken, files(id, name)",
+            pageToken=page_token
+        ).execute()
+        
+        # Append the files to the list
+        files.extend(results.get('files', []))
+        
+        # Check if there is another page of files
+        page_token = results.get('nextPageToken')
+        if not page_token:
+            break  # No more pages, exit the loop
+    
     return files
 
 # Folder ID from Google Drive (replace with your actual folder ID)
@@ -70,8 +86,8 @@ folder_id = '1j5s1OnQI-b_Cc2NOYi6gEDydmGFBfH1q'
 # Authenticate and get the service
 service = authenticate_google_drive()
 
-# List files in the folder
-files = list_files_in_drive(service, folder_id)
+# List all files in the folder
+files = list_all_files_in_drive(service, folder_id)
 
 # Function to fetch image from Google Drive and return as PIL Image
 def fetch_image_from_drive(service, file_id):
@@ -130,7 +146,7 @@ with tabs[1]:
     # Display the base map image
     st.write("### Base Map")
     try:
-        base_map_image = Image.open("BaseMap.png")
+        base_map_image = Image.open("assets/BaseMap_Morocco.png")
         st.image(base_map_image, caption="Base Map of Morocco", use_container_width=True)
     except FileNotFoundError:
         st.error("Base map image not found.")
