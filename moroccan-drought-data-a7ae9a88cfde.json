@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "moroccan-drought-data",
+  "private_key_id": "a7ae9a88cfdefdceb206608c5a9433eb54f44e49",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDMmkHWdcnlrxEQ\n3sPqSlIwWncbjUoaZNffxD48nYqUV7lGGTfscfrLNd8M5IZbQKa+0IxMgAmNEP9E\nx6SsDUQ8ZaDilMHXtA6LZKHSZZoTI5cOYR4sR8l7j/aOXNDWUmp+1b21qpFBOnmu\nAPErjV+p/5pfudl+176CpWSgbVrIwuo9AGCsN0LuJ+5QNOm6dQm/1FW546UPJKVh\nhhUMJHdF64UyNBs2sSLIL5fxb+0yhwCWLcQMpp0y8RpPFxqDdrme9VGdhZ9uwyva\nTyN9FTpDAbgHbN+LSOshyYH9gRMKqNN3PZTyBUhyT4LiGWGmpsUawhr+aAnbc+XF\nCYoBfadTAgMBAAECggEAYnLlNBrYS68J0KrH7V/WnVKiVj0Nh5a3cwH8CnGpwUhW\nq36t9JVBnm8tBQifB6Cbu1wg7hx7vAeONNu1hl4Z08/48p2uiiqnBvakkNb3pLbu\n0+nyOU9PiSeT9Rt/F2lvudkCIDxTCWZoL0xfv1uWyPdnIiGMoGaSUk3gFfuYf9nB\niLiDs4UOwsYFPpSuGGPRaS9Zwf5L28TGBSB6ZDwKpcbUYpb8GldkTjMQSnggh3nq\nY7+RMLA/Kq+debrwUSz0ThH9DihZ0n0TsRooAm5kWInmm0WmBaguFzJfSJvk2JKp\nfmXjheAB+mP07mwd/LzsM+Xc7+OpRKkdFrXDX9ch4QKBgQDxdaagkUwEc+GnSkpk\nXhDGOoCHNXczzjjuYodswbBaHbUF+pOJROq4l5g/PvtL0QeJVYcylvVeQ+pzlOpW\nE0UIQmG5qZI90uJujYMjKFbYDbdk0cv4iHlQNW0NkSQkaR4V3ff13ciZrsNkrDfx\niSNS7F6QVbNmG2gzFFqDEYpyYQKBgQDY7GrbGgHxq2925QnW0C9NjPn/KHk82ta3\nDLXVeXMi+aTEitrfZ5W5sIZ5HMRI/ojlZcJBZaOsblshgrZ3Tq0mHJ2idvUKpjFX\nsDyT+mb8bZqBml0mhC7tAZ5hyMgxXK0Va3VdUwzv8uvGYsgJhBUNeDfiRX9nav9Z\nLnd1Q/GeMwKBgQCDmMF1pXquupFzYXPl+7Zcsym1hxgubehtU9nHFlEM7D/qwESE\nfcEHVeeuIJ9JFOVsneaPVeLou08eKz0EKIBpHfSxAZAojbTG1+1uzd925RLcqdLm\n40pqwpNq3325MmkpNc6ce4GG8M6hIZNj2oAcA6MOOwcJUUqa/C7QXFD+QQKBgHcJ\nDP4cgHKYa7snpkWNyldZBBqjoBvnzql2PRXe5nKL4YHE3KR5WC0klDZDteaEXqTb\nOUTfvHgzuqhh7TT9JIDkdRAhDQiB+FOxLxzY7MiacI2sIm+vW3zNRZdNMaX8wDIf\n3LCQkWneuMkNjc3DADZ7ANeW4Xnjuim7GOxtk1oHAoGANuiYAjA8s2+PMVKXGL7J\n9eAWfJdRsZzaQAGi19w6xFt0Gchbg49gm0jyv/2vNv+4VKMbXgEvZEWWFU8JBIp9\naYbGhTIpWK0v6CLJCknTQhsuaHijWBPcNavHqoclW4+dulwl3LPHLC9H/zqRtqtI\nQi00yR0f4skoW95MeclDqtU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "display-data@moroccan-drought-data.iam.gserviceaccount.com",
+  "client_id": "102456483262756285264",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/display-data%40moroccan-drought-data.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
