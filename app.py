@@ -1,14 +1,12 @@
 import streamlit as st
 from PIL import Image
 from datetime import date
-import os
 import base64
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import io
 from googleapiclient.http import MediaIoBaseDownload
-import pickle
 from google.oauth2 import service_account
 
 
@@ -48,7 +46,6 @@ def img_to_base64(image_path):
         return None
 
 
-# Path to your service account key file
 SERVICE_ACCOUNT_FILE = 'moroccan-drought-data-a7ae9a88cfde.json'  # Update with your actual file path
 
 # Authenticate using the service account
@@ -67,17 +64,6 @@ def list_files_in_drive(service, folder_id):
     files = results.get('files', [])
     return files
 
-# Download file from Google Drive
-def download_file_from_drive(service, file_id, destination):
-    request = service.files().get_media(fileId=file_id)
-    fh = io.FileIO(destination, 'wb')
-    downloader = MediaIoBaseDownload(fh, request)
-    done = False
-    while done is False:
-        status, done = downloader.next_chunk()
-        print(f"Download {int(status.progress() * 100)}%.")
-    print(f"File downloaded to {destination}")
-
 # Folder ID from Google Drive (replace with your actual folder ID)
 folder_id = '1j5s1OnQI-b_Cc2NOYi6gEDydmGFBfH1q'
 
@@ -87,9 +73,20 @@ service = authenticate_google_drive()
 # List files in the folder
 files = list_files_in_drive(service, folder_id)
 
+# Function to fetch image from Google Drive and return as PIL Image
+def fetch_image_from_drive(service, file_id):
+    request = service.files().get_media(fileId=file_id)
+    fh = io.BytesIO()  # Use BytesIO to store image data in memory
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while not done:
+        status, done = downloader.next_chunk()
+    fh.seek(0)  # Go to the start of the file
+    image = Image.open(fh)  # Open the image from memory
+    return image
+
 # Define the function to check if the date is valid
 def is_valid_date(selected_date):
-    # Check if the day is 1, 11, or 21
     return selected_date.day in [1, 11, 21]
 
 
@@ -173,6 +170,7 @@ with tabs[2]:
     st.write("- Learning Rate Schedule")    
     
 
+# Display the image based on selected date
 with tabs[3]:
     st.write("This section provides information about the data used in this project.")
 
@@ -195,10 +193,10 @@ with tabs[3]:
         image_file = next((file for file in files if file['name'] == image_name), None)
 
         if image_file:
-            # Download the image if it exists in the Drive folder
+            # Fetch the image from Google Drive without downloading to disk
             file_id = image_file['id']
-            download_file_from_drive(service, file_id, f"images/{image_name}")
-            st.image(f"images/{image_name}", caption=f"Image for {formatted_date}", use_container_width=True)
+            image = fetch_image_from_drive(service, file_id)
+            st.image(image, caption=f"Image for {formatted_date}", use_container_width=True)
         else:
             st.write(f"No image available for {formatted_date}. Please choose another date.")
     else:
