@@ -2,94 +2,72 @@ import streamlit as st
 from PIL import Image
 from datetime import date
 import os
+import base64
 
 # Set page config
 st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
 
-# Load custom CSS for styling
+# Load custom CSS for styling at the start
 with open("css/prediction.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+with open("css/model.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+with open("css/about_us.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Title and description
 st.markdown('<div class="title"><h1>Moroccan Drought Segmentation</h1></div>', unsafe_allow_html=True)
 st.markdown('<div class="content-section"><p>This project uses deep learning models to predict future drought conditions in Morocco.</p></div>', unsafe_allow_html=True)
 
-if 'prediction_date' not in st.session_state:
-    st.session_state.prediction_date = None
-if 'prediction_button_pressed' not in st.session_state:
-    st.session_state.prediction_button_pressed = False
-if 'selected_section' not in st.session_state:
-    st.session_state.selected_section = "Prediction"
-if 'minimize_base_map' not in st.session_state:
-    st.session_state.minimize_base_map = False
+# Manage session state
+for key in ['prediction_date', 'prediction_button_pressed', 'selected_section', 'minimize_base_map']:
+    if key not in st.session_state:
+        st.session_state[key] = None if key == 'prediction_date' else False if key in ['prediction_button_pressed', 'minimize_base_map'] else "Prediction"
 
-# Navigation buttons
-st.markdown('<div class="top-bar">', unsafe_allow_html=True)
-col1, col2, col3, col4 = st.columns(4)  # Increase to 4 columns for the new button
+# Use tabs for navigation
+tabs = st.tabs(["Prediction", "Model Metrics and History", "Data", "About Us"])
 
-with col1:
-    if st.button("Prediction", key="pred"):
-        st.session_state.selected_section = "Prediction"
-        st.session_state.minimize_base_map = True
-with col2:
-    if st.button("Model Metrics and History", key="model"):
-        st.session_state.selected_section = "Model"
-        st.session_state.minimize_base_map = False
-with col3:
-    if st.button("Data", key="data"):
-        st.session_state.selected_section = "Data"
-        st.session_state.minimize_base_map = False
-with col4:
-    if st.button("About Us", key="about"):
-        st.session_state.selected_section = "About Us"
-        st.session_state.minimize_base_map = False
+def is_valid_date(selected_date):
+    # Check if the day is 1, 11, or 21
+    return selected_date.day in [1, 11, 21]
 
-st.markdown('</div>', unsafe_allow_html=True)
+def img_to_base64(image_path):
+    try:
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except FileNotFoundError:
+        st.error(f"Image not found: {image_path}")
+        return None
 
-if st.session_state.selected_section == "Prediction":
-    st.markdown('<div class="content-section">', unsafe_allow_html=True)
-    st.header("Prediction")
-    
-    # Date selection input
-    st.session_state.prediction_date = st.date_input("Select Date for Prediction", 
-                                                      value=st.session_state.get('prediction_date', None), 
-                                                      key="prediction_date_input")
+with tabs[0]:
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        st.session_state.prediction_date = st.date_input("Select Date for Prediction", value=st.session_state.get('prediction_date', None), key="prediction_date_input")
     
     # Display the "Prediction for Selected Date" button only if a date is selected
     if st.session_state.prediction_date:
         if st.button(f"Predict for {st.session_state.prediction_date}"):
             st.session_state.prediction_button_pressed = True
         if st.session_state.prediction_button_pressed:
-            # Here you can call the model and show the prediction result
             st.write(f"Running prediction model for {st.session_state.prediction_date}...")
 
     # Display the base map image
     st.write("### Base Map")
-    base_map_image = Image.open("BaseMap.png")
-    
-    # Columns for side-by-side images
-    col1, col2 = st.columns([1, 1])  # Adjust ratio as needed
-    
-    # Base map in the first column
-    with col1:
-        if st.session_state.minimize_base_map:
-            # Set width, height will adjust according to aspect ratio
-            st.image(base_map_image, caption="Base Map of Morocco", width=800)
-        else:
-            st.image(base_map_image, caption="Base Map of Morocco", width=1000)
+    try:
+        base_map_image = Image.open("BaseMap.png")
+        st.image(base_map_image, caption="Base Map of Morocco", use_container_width=True)
+    except FileNotFoundError:
+        st.error("Base map image not found.")
 
-    # Predicted image in the second column
-    with col2:
-        if st.session_state.prediction_button_pressed:
+    if st.session_state.prediction_button_pressed:
+        try:
             predicted_image = Image.open("predicted_image.png")
-            if st.session_state.minimize_base_map:
-                st.image(predicted_image, caption=f"Prediction for {st.session_state.prediction_date}", width=800)
-            else:
-                st.image(predicted_image, caption=f"Prediction for {st.session_state.prediction_date}", width=800)
-        
-elif st.session_state.selected_section == "Model":
-    st.markdown('<div class="content-section model-section">', unsafe_allow_html=True)
-    
+            st.write(f"### Prediction Result for {st.session_state.prediction_date}")
+            st.image(predicted_image, caption=f"Prediction for {st.session_state.prediction_date}", use_container_width=True)
+        except FileNotFoundError:
+            st.error("Predicted image not found. Please ensure the prediction was successful.")
+            
+with tabs[1]:
     # Example metrics - these should be actual metrics from your model training
     st.subheader("Model Performance Metrics")
     st.write("**Accuracy:** 92%")
@@ -115,31 +93,24 @@ elif st.session_state.selected_section == "Model":
     st.write("- ROC Curve")
     st.write("- Learning Rate Schedule")
 
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    with open("css/model.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-elif st.session_state.selected_section == "Data":
-    st.markdown('<div class="content-section">', unsafe_allow_html=True)
+with tabs[2]:
     st.write("This section provides information about the data used in this project.")
 
-    # Date selection with custom validation
-    selected_date = st.date_input(
-        "Select a date to view the image:",
-        min_value=date(2012, 1, 1),
-        max_value=date(2024, 12, 31),
-        value=date(2012, 1, 1),
-        key="date_selector"
-    )
-    def is_valid_date(selected_date):
-    # Check if the day is 1, 11, or 21
-        return selected_date.day in [1, 11, 21]
-
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        selected_date = st.date_input(
+            "Select a date to view the image:",
+            min_value=date(2012, 1, 1),
+            max_value=date(2024, 12, 31),
+            value=date(2012, 1, 1),
+            key="date_selector"
+        )
+    
     # Validate the selected date
     if is_valid_date(selected_date):
         formatted_date = selected_date.strftime('%Y-%m-%d')
-        image_path = os.path.join('C:/Users/mlyou/Desktop/Master_DS/S3/DL/Project/Data/', f"{formatted_date}.png")
+        image_path = os.path.join('./Data/', f"{formatted_date}.png")
         
         if os.path.exists(image_path):
             st.image(image_path, caption=f"Image for {formatted_date}", use_container_width=True)
@@ -147,18 +118,28 @@ elif st.session_state.selected_section == "Data":
             st.write(f"No image available for {formatted_date}. Please choose another date.")
     else:
         st.write("Please select a valid date (1st, 11th, or 21st of any month).")
-
-    st.markdown('</div>', unsafe_allow_html=True)
     
 
-elif st.session_state.selected_section == "About Us":
-    st.markdown('<div class="content-section">', unsafe_allow_html=True)
-    with open("about_us.html", "r") as file:
-        html_content = file.read()
-        st.markdown(html_content, unsafe_allow_html=True)
-        
-    st.markdown('</div>', unsafe_allow_html=True)
+with tabs[3]:
+    # Convert images to Base64
+    images = {
+        "oualid": img_to_base64("assets/oualid.png"),
+        "ahmed": img_to_base64("assets/ahmed.png"),
+        "youssef": img_to_base64("assets/youssef.png"),
+        "moad": img_to_base64("assets/moad.png"),
+        "linkedin-icon": img_to_base64("assets/linkedin-icon.png"),
+        "github-icon": img_to_base64("assets/github-icon.png")
+    }
 
-    # Load custom CSS for styling
-    with open("css/about_us.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    # Read HTML content
+    try:
+        with open("about_us.html", "r") as file:
+            html_content = file.read()
+        for name, base64_str in images.items():
+            if base64_str:
+                html_content = html_content.replace(f'assets/{name}.png', f'data:image/png;base64,{base64_str}')
+        
+        st.markdown(html_content, unsafe_allow_html=True)
+
+    except FileNotFoundError:
+        st.error("Failed to load the 'About Us' content.")
