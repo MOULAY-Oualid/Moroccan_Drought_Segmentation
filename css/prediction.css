@@ -13,6 +13,7 @@ header {visibility: hidden;}
 [data-baseweb="tab-list"] {
     display: flex;
     justify-content: space-between;
+    padding-top: 44px;
 }
 
 
