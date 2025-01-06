@@ -114,32 +114,32 @@ def is_valid_date(selected_date):
 
 
 with tabs[0]:
-    c1, c2 = st.columns([1, 1])
+    st.markdown('<div class="container">', unsafe_allow_html=True)
+    c1, c2 , c3  = st.columns([1, 1 , 1 ])
+
     with c1:
+        try:
+            base_map_image = Image.open("assets/BaseMap_Morocco.png")
+            st.image(base_map_image, caption="Base Map of Morocco", use_container_width=True)
+        except FileNotFoundError:
+            st.error("Base map image not found.")
+
+    with c2:
         st.session_state.prediction_date = st.date_input("Select Date for Prediction", value=st.session_state.get('prediction_date', None), key="prediction_date_input")
     
-    # Display the "Prediction for Selected Date" button only if a date is selected
-    if st.session_state.prediction_date:
-        if st.button(f"Predict for {st.session_state.prediction_date}"):
-            st.session_state.prediction_button_pressed = True
+        # Display the "Prediction for Selected Date" button only if a date is selected
+        if st.session_state.prediction_date:
+            if st.button(f"Predict for {st.session_state.prediction_date}"):
+                st.session_state.prediction_button_pressed = True
+
+    with c3:
         if st.session_state.prediction_button_pressed:
-            st.write(f"Running prediction model for {st.session_state.prediction_date}...")
-
-    # Display the base map image
-    st.write("### Base Map")
-    try:
-        base_map_image = Image.open("assets/BaseMap_Morocco.png")
-        st.image(base_map_image, caption="Base Map of Morocco", use_container_width=True)
-    except FileNotFoundError:
-        st.error("Base map image not found.")
-
-    if st.session_state.prediction_button_pressed:
-        try:
-            predicted_image = Image.open("predicted_image.png")
-            st.write(f"### Prediction Result for {st.session_state.prediction_date}")
-            st.image(predicted_image, caption=f"Prediction for {st.session_state.prediction_date}", use_container_width=True)
-        except FileNotFoundError:
-            st.error("Predicted image not found. Please ensure the prediction was successful.")
+            try:
+                predicted_image = Image.open("assets/predicted_image.png")
+                st.image(predicted_image, caption=f"Prediction for {st.session_state.prediction_date}", use_container_width=True)
+            except FileNotFoundError:
+                st.error("Predicted image not found. Please ensure the prediction was successful.")
+    st.markdown('</div>', unsafe_allow_html=True)
             
 with tabs[1]:
     # Example metrics - these should be actual metrics from your model training
