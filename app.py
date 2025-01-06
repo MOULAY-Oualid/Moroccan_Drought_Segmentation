@@ -8,7 +8,7 @@ from googleapiclient.discovery import build
 import io
 from googleapiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
-
+import json
 
 # Set page config
 st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
@@ -46,15 +46,21 @@ def img_to_base64(image_path):
         return None
 
 
-# Service Account File
-SERVICE_ACCOUNT_FILE = 'vivid-osprey-446918-a1-84344af7678c.json'
-
 # Authenticate using the service account
 def authenticate_google_drive():
-    creds = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
+    # Load the JSON credentials from Streamlit secrets
+    credentials_json = st.secrets["google"]["credentials"]
+    
+    # Parse the JSON string into a Python dictionary
+    service_account_info = json.loads(credentials_json)
+    
+    # Create credentials object
+    creds = service_account.Credentials.from_service_account_info(
+        service_account_info,
         scopes=['https://www.googleapis.com/auth/drive.readonly']
     )
+    
+    # Build the Google Drive service
     service = build('drive', 'v3', credentials=creds)
     return service
 
