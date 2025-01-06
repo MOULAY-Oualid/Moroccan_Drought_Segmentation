@@ -10,42 +10,6 @@ from googleapiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
 import json
 
-# Set page config
-st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
-
-# Load custom CSS for styling at the start
-with open("css/prediction.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-with open("css/model.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-with open("css/about_us.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# Title and description
-st.markdown('<div class="title"><h1>Moroccan Drought Segmentation</h1></div>', unsafe_allow_html=True)
-st.markdown('<div class="content-section"><p>This project uses deep learning models to predict future drought conditions in Morocco.</p></div>', unsafe_allow_html=True)
-
-# Manage session state
-for key in ['prediction_date', 'prediction_button_pressed', 'selected_section']:
-    if key not in st.session_state:
-        st.session_state[key] = None if key == 'prediction_date' else False if key == 'prediction_button_pressed' else "Prediction"
-
-# Use tabs for navigation
-tabs = st.tabs(["Prediction", "Model Metrics and History", "Data", "About Us"])
-
-def is_valid_date(selected_date):
-    # Check if the day is 1, 11, or 21
-    return selected_date.day in [1, 11, 21]
-
-def img_to_base64(image_path):
-    try:
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode()
-    except FileNotFoundError:
-        st.error(f"Image not found: {image_path}")
-        return None
-
-
 # Authenticate using the service account
 def authenticate_google_drive():
     # Load the JSON credentials from Streamlit secrets
@@ -107,11 +71,42 @@ def fetch_image_from_drive(service, file_id):
     image = Image.open(fh)  # Open the image from memory
     return image
 
-# Define the function to check if the date is valid
 def is_valid_date(selected_date):
+    # Check if the day is 1, 11, or 21
     return selected_date.day in [1, 11, 21]
 
+def img_to_base64(image_path):
+    try:
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except FileNotFoundError:
+        st.error(f"Image not found: {image_path}")
+        return None
 
+
+# Load custom CSS for styling at the start
+with open("css/prediction.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+with open("css/model.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+with open("css/about_us.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
+# Set page config
+st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
+
+# Title and description
+st.markdown('<div class="title"><h1>Moroccan Drought Segmentation</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="content-section"><p>This project uses deep learning models to predict future drought conditions in Morocco.</p></div>', unsafe_allow_html=True)
+
+# Manage session state
+for key in ['prediction_date', 'prediction_button_pressed', 'selected_section']:
+    if key not in st.session_state:
+        st.session_state[key] = None if key == 'prediction_date' else False if key == 'prediction_button_pressed' else "Prediction"
+
+# Use tabs for navigation
+tabs = st.tabs(["Prediction", "Model Metrics and History", "Data", "About Us"])
 
 with tabs[0]:
     st.markdown('<div class="container">', unsafe_allow_html=True)
@@ -170,9 +165,8 @@ with tabs[1]:
 
 # Display the image based on selected date
 with tabs[2]:
-    st.write("This section provides information about the data used in this project.")
 
-    col1, col2 = st.columns([1, 1])
+    col1, col2  = st.columns([1, 1])
     with col1:
         selected_date = st.date_input(
             "Select a date to view the image:",
@@ -182,23 +176,24 @@ with tabs[2]:
             key="date_selector"
         )
 
-    # Validate the selected date
-    if is_valid_date(selected_date):
-        formatted_date = selected_date.strftime('%Y-%m-%d')
+    with col2:
+        # Validate the selected date
+        if is_valid_date(selected_date):
+            formatted_date = selected_date.strftime('%Y-%m-%d')
 
-        # Search for the image by date
-        image_name = f"{formatted_date}.png"
-        image_file = next((file for file in files if file['name'] == image_name), None)
+            # Search for the image by date
+            image_name = f"{formatted_date}.png"
+            image_file = next((file for file in files if file['name'] == image_name), None)
 
-        if image_file:
-            # Fetch the image from Google Drive without downloading to disk
-            file_id = image_file['id']
-            image = fetch_image_from_drive(service, file_id)
-            st.image(image, caption=f"Image for {formatted_date}", use_container_width=True)
+            if image_file:
+                # Fetch the image from Google Drive without downloading to disk
+                file_id = image_file['id']
+                image = fetch_image_from_drive(service, file_id)
+                st.image(image, caption=f"Image for {formatted_date}", use_container_width=True)
+            else:
+                st.write(f"No image available for {formatted_date}. Please choose another date.")
         else:
-            st.write(f"No image available for {formatted_date}. Please choose another date.")
-    else:
-        st.write("Please select a valid date (1st, 11th, or 21st of any month).")
+            st.write("Please select a valid date (1st, 11th, or 21st of any month).")
 
 with tabs[3]:
     # Convert images to Base64
