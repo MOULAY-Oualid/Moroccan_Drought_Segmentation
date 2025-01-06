@@ -101,7 +101,6 @@ with open("css/about_us.css") as f:
 
 # Title and description
 st.markdown('<div class="title"><h1>Moroccan Drought Segmentation</h1></div>', unsafe_allow_html=True)
-st.markdown('<div class="content-section"><p>This project uses deep learning models to predict future drought conditions in Morocco.</p></div>', unsafe_allow_html=True)
 
 # Manage session state
 for key in ['prediction_date', 'prediction_button_pressed', 'selected_section']:
@@ -113,7 +112,10 @@ tabs = st.tabs(["Prediction", "Model Metrics and History", "Data", "About Us"])
 
 with tabs[0]:
     st.markdown('<div class="container">', unsafe_allow_html=True)
+    
+    st.write("### For prediction, please select a date later than 2024-10-21.")
     c1, c2 , c3  = st.columns([1, 1 , 1 ])
+    not_valid_date = False
 
     with c1:
         try:
@@ -123,20 +125,50 @@ with tabs[0]:
             st.error("Base map image not found.")
 
     with c2:
-        st.session_state.prediction_date = st.date_input("Select Date for Prediction", value=st.session_state.get('prediction_date', None), key="prediction_date_input")
+        st.session_state.prediction_date = st.date_input(
+            "Select Date for Prediction", 
+            min_value=date(2012, 1, 1),
+            value=date(2024, 11, 1), 
+            key="prediction_date_input"
+        )
     
         # Display the "Prediction for Selected Date" button only if a date is selected
         if st.session_state.prediction_date:
-            if st.button(f"Predict for {st.session_state.prediction_date}"):
-                st.session_state.prediction_button_pressed = True
+            selected_date = st.session_state.prediction_date
+            if is_valid_date(selected_date):
+                if selected_date > date(2024, 10, 21):
+                    if st.button(f"Predict for {selected_date}"):
+                        st.session_state.prediction_button_pressed = 'Predection'
+                else:   
+                    st.session_state.prediction_button_pressed = 'Data-from-drive'
+            else:
+                not_valid_date = True
+                st.write("Please select a valid date (1st, 11th, or 21st of any month).")
 
     with c3:
-        if st.session_state.prediction_button_pressed:
+        if st.session_state.prediction_button_pressed == 'Data-from-drive':
+            formatted_date = selected_date.strftime('%Y_%m_%d')
+
+            # Search for the image by date
+            image_name = f"{formatted_date}.png"
+            image_file = next((file for file in files if file['name'] == image_name), None)
+
+            if image_file:
+                # Fetch the image from Google Drive without downloading to disk
+                file_id = image_file['id']
+                image = fetch_image_from_drive(service, file_id)
+                st.image(image, caption=f"Image from dataset for {formatted_date}", use_container_width=True)
+                
+        elif st.session_state.prediction_button_pressed == 'Predection' and not_valid_date == False:
             try:
                 predicted_image = Image.open("assets/predicted_image.png")
                 st.image(predicted_image, caption=f"Prediction for {st.session_state.prediction_date}", use_container_width=True)
             except FileNotFoundError:
                 st.error("Predicted image not found. Please ensure the prediction was successful.")
+        elif not_valid_date == True:
+            st.write(" ")
+        else:   
+            st.write(" ")
     st.markdown('</div>', unsafe_allow_html=True)
             
 with tabs[1]:
@@ -174,7 +206,7 @@ with tabs[2]:
         selected_date = st.date_input(
             "Select a date to view the image:",
             min_value=date(2012, 1, 1),
-            max_value=date(2024, 12, 31),
+            max_value=date(2024, 10, 21),
             value=date(2012, 1, 1),
             key="date_selector"
         )
@@ -182,7 +214,7 @@ with tabs[2]:
     with col2:
         # Validate the selected date
         if is_valid_date(selected_date):
-            formatted_date = selected_date.strftime('%Y-%m-%d')
+            formatted_date = selected_date.strftime('%Y_%m_%d')
 
             # Search for the image by date
             image_name = f"{formatted_date}.png"
