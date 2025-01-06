@@ -78,7 +78,10 @@ div.stTabs > div > div > div > div > span {
 /* Styling for the base map title */
 .stMarkdown h3 {
     color: #333;
-    font-size: 20px;
+    font-size: 17px;
+    padding-bottom: 37px;
+    justify-content: center;
+    display: flex;
 }
 
 /* General app padding */
