@@ -92,8 +92,6 @@ def img_to_base64(image_path):
 # Load custom CSS for styling at the start
 with open("css/prediction.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-with open("css/model.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 with open("css/about_us.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
