@@ -10,6 +10,11 @@ from googleapiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
 import json
 
+
+# Set page config
+st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
+
+
 # Authenticate using the service account
 def authenticate_google_drive():
     # Load the JSON credentials from Streamlit secrets
@@ -93,8 +98,6 @@ with open("css/about_us.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 
-# Set page config
-st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
 
 # Title and description
 st.markdown('<div class="title"><h1>Moroccan Drought Segmentation</h1></div>', unsafe_allow_html=True)
