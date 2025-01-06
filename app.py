@@ -31,7 +31,7 @@ for key in ['prediction_date', 'prediction_button_pressed', 'selected_section']:
         st.session_state[key] = None if key == 'prediction_date' else False if key == 'prediction_button_pressed' else "Prediction"
 
 # Use tabs for navigation
-tabs = st.tabs(["Exploratory Data Analysis", "Prediction", "Model Metrics and History", "Data", "About Us"])
+tabs = st.tabs(["Prediction", "Model Metrics and History", "Data", "About Us"])
 
 def is_valid_date(selected_date):
     # Check if the day is 1, 11, or 21
@@ -113,31 +113,7 @@ def is_valid_date(selected_date):
 
 
 
-
 with tabs[0]:
-    st.write("This section provides an overview of the data used in the project, including descriptive statistics and visualizations.")
-
-    # Example descriptive statistics
-    st.subheader("Descriptive Statistics")
-    st.write("- Number of samples: 1000")
-    st.write("- Average Drought Severity Index: 0.45")
-    st.write("- Standard Deviation of Drought Severity Index: 0.12")
-
-    # Example visualizations
-    st.subheader("Visualizations")
-    try:
-        drought_histogram = Image.open("assets/drought_histogram.png")
-        st.image(drought_histogram, caption="Drought Severity Index Distribution", use_container_width=True)
-    except FileNotFoundError:
-        st.error("Drought histogram image not found.")
-
-    try:
-        drought_map = Image.open("assets/drought_map.png")
-        st.image(drought_map, caption="Geographical Distribution of Droughts", use_container_width=True)
-    except FileNotFoundError:
-        st.error("Drought map image not found.")
-
-with tabs[1]:
     c1, c2 = st.columns([1, 1])
     with c1:
         st.session_state.prediction_date = st.date_input("Select Date for Prediction", value=st.session_state.get('prediction_date', None), key="prediction_date_input")
@@ -165,7 +141,7 @@ with tabs[1]:
         except FileNotFoundError:
             st.error("Predicted image not found. Please ensure the prediction was successful.")
             
-with tabs[2]:
+with tabs[1]:
     # Example metrics - these should be actual metrics from your model training
     st.subheader("Model Performance Metrics")
     st.write("**Accuracy:** 92%")
@@ -193,7 +169,7 @@ with tabs[2]:
     
 
 # Display the image based on selected date
-with tabs[3]:
+with tabs[2]:
     st.write("This section provides information about the data used in this project.")
 
     col1, col2 = st.columns([1, 1])
@@ -224,7 +200,7 @@ with tabs[3]:
     else:
         st.write("Please select a valid date (1st, 11th, or 21st of any month).")
 
-with tabs[4]:
+with tabs[3]:
     # Convert images to Base64
     images = {
         "oualid": img_to_base64("assets/oualid.png"),
