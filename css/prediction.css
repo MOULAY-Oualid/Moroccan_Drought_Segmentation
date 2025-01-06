@@ -16,6 +16,10 @@ header {visibility: hidden;}
     padding-top: 44px;
 }
 
+.stTabs [data-baseweb="tab-list"] button {
+    font-size: 24px;
+    font-weight: bold;
+}
 
 .title {
     background-color: #696969;
@@ -63,7 +67,7 @@ div.stTabs > div > div > div > div > span {
     border-radius: 5px;
     border: 1px solid #ccc;
     padding: 10px;
-    max-width: 230px;
+    max-width: 222px;
     height: auto;
 }
 
@@ -79,10 +83,7 @@ div.stTabs > div > div > div > div > span {
 /* Styling for the base map title */
 .stMarkdown h3 {
     color: #333;
-    font-size: 17px;
-    padding-bottom: 37px;
-    justify-content: center;
-    display: flex;
+    font-size: 20px;
 }
 
 /* General app padding */
@@ -93,6 +94,23 @@ div.stTabs > div > div > div > div > span {
 #tabs-bui2-tabpanel-0 {
     padding-top: 0px; 
 }
+
+.stMarkdown h3 {
+    color: #333;
+    font-size: 17px;
+    padding-bottom: 37px;
+    justify-content: center;
+    display: flex;
+}
+
+.stMarkdown h6 {
+    color: red;
+    padding-bottom: 37px;
+    justify-content: center;
+    max-width: 400px;
+    max-height: 400px;
+}
+
 
 .container {
     display: flex;
@@ -110,7 +128,7 @@ div.stTabs > div > div > div > div > span {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    width: 230px;
+    width: 222px;
 }
 
 .st-emotion-cache-1h3k0y3 {
