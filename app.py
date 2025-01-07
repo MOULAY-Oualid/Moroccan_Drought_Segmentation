@@ -275,30 +275,16 @@ with tabs[0]:
     st.markdown('</div>', unsafe_allow_html=True)
             
 with tabs[1]:
-    # Example metrics - these should be actual metrics from your model training
-    st.subheader("Model Performance Metrics")
-    st.write("**Accuracy:** 92%")
-    st.write("**Precision:** 89%")
-    st.write("**Recall:** 91%")
-    st.write("**F1 Score:** 90%")
-
-    # Displaying model history (e.g., loss over epochs)
-    st.subheader("Training History")
-    epochs = list(range(1, 21))  # assuming 20 epochs
-    loss = [0.8, 0.7, 0.6, 0.5, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.08, 0.07, 0.06]
-
-    # Since you cannot execute code to plot, here's a conceptual description:
-    st.write("Graph would show:")
-    st.write(f"- X-axis: Epochs {epochs}")
-    st.write(f"- Y-axis: Loss {loss}")
-    st.write("Decreasing trend indicating model improvement over epochs.")
-
-    # Additional information or plots can be added here, like confusion matrix or ROC curve
-    st.write("### Additional Model Information")
-    st.write("Here you could add more detailed information or visualizations like:")
-    st.write("- Confusion Matrix")
-    st.write("- ROC Curve")
-    st.write("- Learning Rate Schedule")    
+    ccc1, ccc2 , ccc3 = st.columns([1, 1 , 1 ])
+    with ccc2:
+        # Example metrics - these should be actual metrics from your model training
+        st.write("### Model Performance Metrics (ConvLSTM)")
+        st.write("*Accuracy:* 92%")
+        st.write("*Loss:* 0.91")
+        # st.write("*Recall:* 91%")
+        # st.write("*F1 Score:* 90%")
+        results = Image.open("assets/results.jpg")
+        st.image(results, caption="Model performance", width=800)    
     
 
 # Display the image based on selected date
