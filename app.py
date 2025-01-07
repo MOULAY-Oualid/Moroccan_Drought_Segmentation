@@ -11,6 +11,7 @@ from inference import process_masks
 import tempfile
 from io import BytesIO
 import os
+import json
 
 
 # Set page config
