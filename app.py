@@ -20,13 +20,20 @@ st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
 folder_color_id = '1j5s1OnQI-b_Cc2NOYi6gEDydmGFBfH1q'
 folder_gray_id = '1Hxh611o1QWTaTmRMahX6CjVDsWKKI7xV'
 
-# Authenticate Google Drive
+# Authenticate Google Drive using Streamlit secrets
 def authenticate_google_drive():
-    creds = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
-        scopes=['https://www.googleapis.com/auth/drive']
-    )
-    return build('drive', 'v3', credentials=creds)
+    # Get the credentials from Streamlit secrets
+    google_credentials = st.secrets["google"]["credentials"]
+    
+    # Convert the credentials string to a Python dictionary
+    creds_dict = json.loads(google_credentials)
+    
+    # Create credentials using the loaded dictionary
+    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=['https://www.googleapis.com/auth/drive'])
+    
+    # Build the Drive API client
+    drive_service = build('drive', 'v3', credentials=creds)
+    return drive_service
 
 
 # Authenticate and get the service
