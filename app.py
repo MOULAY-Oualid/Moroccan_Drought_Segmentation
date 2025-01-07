@@ -148,6 +148,7 @@ def process_and_upload_images(selected_date):
     formatted_date = selected_date.strftime('%Y_%m_%d')
     nearest_date = find_nearest_dates(str(formatted_date))
     
+    
     files_gray = list_all_files_in_drive(service, folder_gray_id)
     # Generate image names and fetch the corresponding files
     image_name1 = f"{nearest_date[0]}.png"
@@ -155,6 +156,10 @@ def process_and_upload_images(selected_date):
     image_file1 = next((file for file in files_gray if file['name'] == image_name1), None)  
     image_file2 = next((file for file in files_gray if file['name'] == image_name2), None)
 
+    if image_file1 is None or image_file2 is None:
+        st.error("Image files not found. Please ensure the images are available in the dataset.")
+        return
+    
     # Retrieve image file ids
     file_id1 = image_file1['id']
     file_id2 = image_file2['id']
@@ -253,7 +258,7 @@ with tabs[0]:
                     st.session_state.prediction_button_pressed = 'Data-from-drive'
             else:
                 not_valid_date = True
-                st.write("Please select a valid date (1st, 11th, or 21st of any month).")
+                st.error("Please select a valid date (1st, 11th, or 21st of any month).")
 
     with c3:
         if st.session_state.prediction_button_pressed == 'Data-from-drive':
@@ -292,7 +297,7 @@ with tabs[1]:
         # st.write("*Recall:* 91%")
         # st.write("*F1 Score:* 90%")
         results = Image.open("assets/results.jpg")
-        st.image(results, caption="Model performance", width=800)    
+        st.image(results, caption="Model performance", width=800) 
     
 
 # Display the image based on selected date
@@ -327,7 +332,7 @@ with tabs[2]:
             else:
                 st.write(f"No image available for {formatted_date}. Please choose another date.")
         else:
-            st.write("Please select a valid date (1st, 11th, or 21st of any month).")
+            st.error("Please select a valid date (1st, 11th, or 21st of any month).")
 
 with tabs[3]:
     # Convert images to Base64
@@ -352,3 +357,4 @@ with tabs[3]:
 
     except FileNotFoundError:
         st.error("Failed to load the 'About Us' content.")
+
