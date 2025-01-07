@@ -18,9 +18,9 @@ pixel_to_class = {0: 0, 70: 1, 162: 2, 213: 3}
 # Color map for visualization
 color_map = {
     0: [0, 0, 0],        # Black for class 0
-    1: [255, 0, 0],      # Red for class 1
-    2: [255, 165, 0],    # Yellow for class 2
-    3: [255, 255, 0],    # Orange for class 3
+    1: [220, 5, 12],      # Red for class 1
+    2: [230, 159, 0],    # Yellow for class 2
+    3: [240, 228, 66],    # Orange for class 3
 }
 
 # Function to map pixel values to class indices
@@ -102,7 +102,7 @@ class DroughtDataset(Dataset):
         return input_tensor
 
 # Function to perform inference and overlay result on base image
-def process_masks(mask_paths,date_selected):
+def process_masks(mask_paths):
     # Create a temporary folder to save mask images
     temp_folder = tempfile.mkdtemp()
 
@@ -166,12 +166,7 @@ def process_masks(mask_paths,date_selected):
     # Overlay the mask on the base image
     overlayed_image = Image.alpha_composite(base_image, segmented_mask)
 
-    # Save and display the result
-    output_path = f"Inference_results/{date_selected}.png"
-    overlayed_image.save(output_path)
-    #overlayed_image.show()
-
-    print(f"Overlayed map saved at {output_path}")
-
     # Clean up the temporary folder
     shutil.rmtree(temp_folder)
+    
+    return overlayed_image,segmented_mask
