@@ -2,9 +2,8 @@ import streamlit as st
 from PIL import Image
 from datetime import date
 import base64
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
 import io
 from googleapiclient.http import MediaIoBaseDownload
 from google.oauth2 import service_account
