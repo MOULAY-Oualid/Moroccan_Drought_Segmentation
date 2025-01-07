@@ -17,12 +17,15 @@ import os
 # Set page config
 st.set_page_config(page_title="Moroccan Drought Segmentation", layout="wide")
 
+# Folder ID from Google Drive 
+folder_color_id = '1j5s1OnQI-b_Cc2NOYi6gEDydmGFBfH1q'
+folder_gray_id = '1Hxh611o1QWTaTmRMahX6CjVDsWKKI7xV'
 
 # Authenticate Google Drive
 def authenticate_google_drive():
     creds = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE,
-        scopes=['https://www.googleapis.com/auth/drive.readonly']
+        scopes=['https://www.googleapis.com/auth/drive']
     )
     return build('drive', 'v3', credentials=creds)
 
@@ -51,13 +54,6 @@ def list_all_files_in_drive(service, folder_id):
             break  # No more pages, exit the loop
     
     return files
-
-# Folder ID from Google Drive (replace with your actual folder ID)
-folder_color_id = '1j5s1OnQI-b_Cc2NOYi6gEDydmGFBfH1q'
-folder_gray_id = '17xK_i2IUd8T2_FcaXh9EAOWwtgRaeX4g'
-
-
-
 
 
 # Function to fetch image from Google Drive and return as PIL Image
@@ -113,6 +109,88 @@ def find_nearest_dates(date_selected):
 
     # Sort the dates chronologically and return the two nearest dates
     return sorted(nearest_dates)[:2]
+
+
+# Function to upload a PNG image directly to a folder in Google Drive
+def upload_image_to_drive(service, image, folder_id, file_name):
+    # Convert the PIL image to a byte stream
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, format='PNG')  # Save the image as PNG
+    image_bytes.seek(0)  # Go to the start of the byte stream
+
+    # Set the metadata for the file upload
+    file_metadata = {
+        'name': file_name,  # File name
+        'parents': [folder_id]  # The folder ID where you want to upload the file
+    }
+
+    # Create a MediaIoBaseUpload object for uploading the image
+    media = MediaIoBaseUpload(image_bytes, mimetype='image/png')  # Set MIME type as PNG
+
+    # Upload the image to Google Drive
+    request = service.files().create(
+        media_body=media,
+        body=file_metadata
+    )
+
+    # Execute the upload and return the file's metadata
+    uploaded_file = request.execute()
+
+def process_and_upload_images(selected_date):
+    # Format the selected date and find the nearest dates
+    formatted_date = selected_date.strftime('%Y_%m_%d')
+    nearest_date = find_nearest_dates(str(formatted_date))
+    
+    files_gray = list_all_files_in_drive(service, folder_gray_id)
+    # Generate image names and fetch the corresponding files
+    image_name1 = f"{nearest_date[0]}.png"
+    image_name2 = f"{nearest_date[1]}.png"
+    image_file1 = next((file for file in files_gray if file['name'] == image_name1), None)  
+    image_file2 = next((file for file in files_gray if file['name'] == image_name2), None)
+
+    # Retrieve image file ids
+    file_id1 = image_file1['id']
+    file_id2 = image_file2['id']
+    
+    # Fetch images from drive
+    image1 = fetch_image_from_drive(service, file_id1)
+    image2 = fetch_image_from_drive(service, file_id2)
+    
+    # Create a temporary directory for storing the images
+    temp_dir = tempfile.mkdtemp(prefix="image_temp_")
+
+    # Define paths for the images
+    path1 = os.path.join(temp_dir, image_name1)
+    path2 = os.path.join(temp_dir, image_name2)
+
+    # Save image1 as PNG
+    with open(path1, 'wb') as file:
+        image1_bytes = BytesIO()
+        image1.save(image1_bytes, format='PNG')
+        image1_bytes.seek(0)
+        file.write(image1_bytes.read())
+
+    # Save image2 as PNG
+    with open(path2, 'wb') as file:
+        image2_bytes = BytesIO()
+        image2.save(image2_bytes, format='PNG')
+        image2_bytes.seek(0)
+        file.write(image2_bytes.read())
+
+    # Process the masks
+    image_predicted, segmented_mask = process_masks([path1, path2])
+    
+    # Display the predicted image
+    st.image(image_predicted, caption=f"Prediction for {formatted_date}", use_container_width=True)
+
+    # Prepare file name and process the segmented mask
+    file_name = f"{formatted_date}.png"
+    segmented_mask = segmented_mask.convert('L')
+
+    # Upload the segmented mask to the drive
+    upload_image_to_drive(service, segmented_mask, folder_gray_id, file_name)
+
+
 
 # Load custom CSS for styling at the start
 with open("css/prediction.css") as f:
@@ -185,54 +263,10 @@ with tabs[0]:
                 image = fetch_image_from_drive(service, file_id)
                 st.image(image, caption=f"Image from dataset for {formatted_date}", use_container_width=True)
                 
-        elif st.session_state.prediction_button_pressed == 'Predection' and not_valid_date == False:
-            # List all files in the folder
-            files_gray = list_all_files_in_drive(service, folder_gray_id)
+        elif st.session_state.prediction_button_pressed == 'Predection' and not_valid_date == False: 
             try:
                 date_selected = st.session_state.prediction_date
-                formatted_date = selected_date.strftime('%Y_%m_%d')
-                nearest_date = find_nearest_dates(str(formatted_date))
-
-                image_name1 = f"{nearest_date[0]}.png"
-                image_name2 = f"{nearest_date[1]}.png"
-                image_file1 = next((file for file in files_gray if file['name'] == image_name1), None)  
-                image_file2 = next((file for file in files_gray if file['name'] == image_name2), None)
-                
-                file_id1 = image_file1['id']
-                file_id2 = image_file2['id']
-                
-                image1 = fetch_image_from_drive(service, file_id1)
-                image2 = fetch_image_from_drive(service, file_id2)
-            
-                # Create a named temporary directory
-                temp_dir = tempfile.mkdtemp(prefix="image_temp_")
-
-                # Define paths for the images
-                path1 = os.path.join(temp_dir, image_name1)
-                path2 = os.path.join(temp_dir, image_name2)
-
-                # Save image1 as PNG
-                with open(path1, 'wb') as file:
-                    # Convert PngImageFile to bytes
-                    image1_bytes = BytesIO()
-                    image1.save(image1_bytes, format='PNG')
-                    image1_bytes.seek(0)  # Go to the beginning of the BytesIO object
-                    file.write(image1_bytes.read())
-
-                # Save image2 as PNG
-                with open(path2, 'wb') as file:
-                    # Convert PngImageFile to bytes
-                    image2_bytes = BytesIO()
-                    image2.save(image2_bytes, format='PNG')
-                    image2_bytes.seek(0)  # Go to the beginning of the BytesIO object
-                    file.write(image2_bytes.read())
-
-                print(path1)
-                print(path2)
-                process_masks([path1,path2],formatted_date)
-                
-                predicted_image = Image.open(f"Inference_results/{formatted_date}.png")
-                st.image(predicted_image, caption=f"Prediction for {formatted_date}", use_container_width=True)
+                process_and_upload_images(date_selected)
             except FileNotFoundError:
                 st.error("Predicted image not found. Please ensure the prediction was successful.")
         elif not_valid_date == True:
